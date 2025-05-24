@@ -1,49 +1,52 @@
-import {useState} from "react";
-import {customerData} from "../data/CustomerData";
-import type {Customer} from "../types/Customer";
+import { useReducer, useState } from "react";
+import { customerData } from "../data/CustomerData";
+import type { Customer } from "../types/Customer";
 import CustomerForm from "../forms/CustomerForm";
 import Dialog from "../components/Dialog";
+import customerReducer from "../reduces/CustomerReducer.ts";
 
 const CustomerPage = () => {
-    const [customers, setCustomers] = useState<Customer[]>(customerData);
-    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false)
-    const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null)
+    const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+    const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+
+    const [customersOnReducer, dispatch] = useReducer(customerReducer, customerData);
 
     const onSubmit = (customer: Customer) => {
-        if(editingCustomer !== null)  { // updating
-            setCustomers(
-                prevState =>
-                    prevState.map(originalCustomer =>
-                    originalCustomer.id === customer.id
-                        ? {...originalCustomer, ...customer} // spread operator
-                        : originalCustomer
-                    )
-            )
-        } else { // add
-            setCustomers([...customers, customer])
+        if (editingCustomer !== null) {
+            dispatch({
+                type: "UPDATE",
+                payload: customer
+            });
+        } else {
+            dispatch({
+                type: "ADD",
+                payload: customer
+            });
         }
 
-        setIsDialogOpen(false)
-    }
+        setIsDialogOpen(false);
+    };
 
     const onAddCustomerClicked = () => {
-        setEditingCustomer(null)
-        setIsDialogOpen(true)
-    }
+        setEditingCustomer(null);
+        setIsDialogOpen(true);
+    };
 
     const onCancel = () => {
-        setIsDialogOpen(false)
-    }
+        setIsDialogOpen(false);
+    };
 
     const onDelete = (id: number) => {
-        setCustomers((prevState) =>
-            prevState.filter((customer) => customer.id !== id))
-    }
+        dispatch({
+            type: "DELETE",
+            payload: id
+        });
+    };
 
     const onEdit = (customer: Customer) => {
-        setEditingCustomer(customer)
-        setIsDialogOpen(true)
-    }
+        setEditingCustomer(customer);
+        setIsDialogOpen(true);
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-6 py-10 bg-white rounded-3xl shadow-xl mt-10 border border-gray-200">
@@ -69,7 +72,7 @@ const CustomerPage = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {customers.map((customer, index) => (
+                    {customersOnReducer.map((customer, index) => (
                         <tr
                             key={index}
                             className="border-b border-slate-200 hover:bg-teal-50 transition duration-200"
@@ -111,7 +114,6 @@ const CustomerPage = () => {
             </Dialog>
         </div>
     );
-
 };
 
 export default CustomerPage;

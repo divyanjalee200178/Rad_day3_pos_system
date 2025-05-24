@@ -40,7 +40,7 @@ const dashboardCards = [
     },
     {
         name: "Sales",
-        to: "/dashboard/sales",
+        to: "/dashboard/orders",
         icon: <FaFileInvoiceDollar className="text-5xl text-yellow-500 mb-4" />,
         color: "bg-yellow-50",
     },
